@@ -34,4 +34,21 @@ describe('App', () => {
     await userEvent.click(screen.getByRole('button', { name: 'いいね済み' }))
     expect(screen.getByRole('button', { name: 'いいね' })).toBeInTheDocument()
   })
+
+  it('いいねボタンを押すといいね数が1増える', async () => {
+    render(<App />)
+    await userEvent.type(screen.getByRole('textbox'), 'テスト投稿')
+    await userEvent.click(screen.getByRole('button', { name: '投稿' }))
+    await userEvent.click(screen.getByRole('button', { name: 'いいね' }))
+    expect(screen.getByText('1')).toBeInTheDocument()
+  })
+
+  it('いいね済みの状態でボタンを押すといいね数が1減る', async () => {
+    render(<App />)
+    await userEvent.type(screen.getByRole('textbox'), 'テスト投稿')
+    await userEvent.click(screen.getByRole('button', { name: '投稿' }))
+    await userEvent.click(screen.getByRole('button', { name: 'いいね' }))
+    await userEvent.click(screen.getByRole('button', { name: 'いいね済み' }))
+    expect(screen.getByText('0')).toBeInTheDocument()
+  })
 })

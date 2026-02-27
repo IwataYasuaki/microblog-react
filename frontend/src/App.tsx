@@ -20,10 +20,20 @@ export default function App() {
 
   const handleLike = (postId: string) => {
     setLikedPostIds([...likedPostIds, postId])
+    setPosts(
+      posts.map((post) =>
+        post.id === postId ? { ...post, likeCount: post.likeCount + 1 } : post
+      )
+    )
   }
 
   const handleUnlike = (postId: string) => {
     setLikedPostIds(likedPostIds.filter((id) => id !== postId))
+    setPosts(
+      posts.map((post) =>
+        post.id === postId ? { ...post, likeCount: post.likeCount - 1 } : post
+      )
+    )
   }
 
   return (
