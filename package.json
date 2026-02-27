@@ -1,0 +1,16 @@
+{
+  "name": "microblog",
+  "version": "1.0.0",
+  "description": "A microblog service",
+  "private": true,
+  "scripts": {
+    "dev": "pnpm --filter frontend dev",
+    "build": "pnpm --filter frontend build",
+    "test": "pnpm --filter frontend test",
+    "test:infra": "pnpm --filter infra test"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.30.2"
+}
