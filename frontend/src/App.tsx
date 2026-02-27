@@ -5,6 +5,7 @@ import type { Post } from './types/post'
 
 export default function App() {
   const [posts, setPosts] = useState<Post[]>([])
+  const [likedPostIds, setLikedPostIds] = useState<string[]>([])
 
   const handleSubmit = (content: string) => {
     const newPost: Post = {
@@ -17,11 +18,24 @@ export default function App() {
     setPosts([newPost, ...posts])
   }
 
+  const handleLike = (postId: string) => {
+    setLikedPostIds([...likedPostIds, postId])
+  }
+
+  const handleUnlike = (postId: string) => {
+    setLikedPostIds(likedPostIds.filter((id) => id !== postId))
+  }
+
   return (
     <div>
       <h1>microblog</h1>
       <PostForm onSubmit={handleSubmit} />
-      <PostList posts={posts} />
+      <PostList
+        posts={posts}
+        likedPostIds={likedPostIds}
+        onLike={handleLike}
+        onUnlike={handleUnlike}
+      />
     </div>
   )
 }

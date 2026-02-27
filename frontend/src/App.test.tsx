@@ -15,4 +15,23 @@ describe('App', () => {
     await userEvent.click(screen.getByRole('button', { name: '投稿' }))
     expect(screen.getByText('新しい投稿')).toBeInTheDocument()
   })
+
+  it('いいねボタンを押すといいね済みになる', async () => {
+    render(<App />)
+    await userEvent.type(screen.getByRole('textbox'), 'テスト投稿')
+    await userEvent.click(screen.getByRole('button', { name: '投稿' }))
+    await userEvent.click(screen.getByRole('button', { name: 'いいね' }))
+    expect(
+      screen.getByRole('button', { name: 'いいね済み' })
+    ).toBeInTheDocument()
+  })
+
+  it('いいね済みの状態でボタンを押すといいねが取り消される', async () => {
+    render(<App />)
+    await userEvent.type(screen.getByRole('textbox'), 'テスト投稿')
+    await userEvent.click(screen.getByRole('button', { name: '投稿' }))
+    await userEvent.click(screen.getByRole('button', { name: 'いいね' }))
+    await userEvent.click(screen.getByRole('button', { name: 'いいね済み' }))
+    expect(screen.getByRole('button', { name: 'いいね' })).toBeInTheDocument()
+  })
 })
