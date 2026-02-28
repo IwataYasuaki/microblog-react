@@ -1,5 +1,10 @@
 import { PostRepository } from './postRepository'
-import { DynamoDBDocumentClient, QueryCommand } from '@aws-sdk/lib-dynamodb'
+import {
+  DynamoDBDocumentClient,
+  QueryCommand,
+  PutCommand,
+  DeleteCommand,
+} from '@aws-sdk/lib-dynamodb'
 import { mockClient } from 'aws-sdk-client-mock'
 
 const ddbMock = mockClient(DynamoDBDocumentClient)
@@ -37,6 +42,33 @@ describe('PostRepository', () => {
       const posts = await repository.listPosts()
 
       expect(posts).toHaveLength(0)
+    })
+  })
+
+  describe('createPost', () => {
+    it('投稿を作成できる', async () => {
+      ddbMock.on(PutCommand).resolves({})
+
+      const repository = new PostRepository('test-table')
+      const post = await repository.createPost({
+        content: '新しい投稿',
+        authorName: 'テストユーザー',
+      })
+
+      expect(post.content).toBe('新しい投稿')
+      expect(post.authorName).toBe('テストユーザー')
+      expect(post.id).toBeDefined()
+      expect(post.createdAt).toBeDefined()
+      expect(post.likeCount).toBe(0)
+    })
+  })
+
+  describe('deletePost', () => {
+    it('投稿を削除できる', async () => {
+      ddbMock.on(DeleteCommand).resolves({})
+
+      const repository = new PostRepository('test-table')
+      await expect(repository.deletePost('1')).resolves.not.toThrow()
     })
   })
 })
