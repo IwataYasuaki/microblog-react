@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { PostList } from './components/PostList'
 import { PostForm } from './components/PostForm'
-import type { Post } from './types/post'
+import type { Post } from '@microblog/shared'
 
 export default function App() {
   const [posts, setPosts] = useState<Post[]>([])

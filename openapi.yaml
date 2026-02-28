@@ -1,0 +1,115 @@
+openapi: '3.0.3'
+info:
+  title: Microblog API
+  version: '1.0.0'
+
+paths:
+  /posts:
+    get:
+      summary: 投稿一覧取得
+      operationId: listPosts
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Post'
+    post:
+      summary: 投稿作成
+      operationId: createPost
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePostInput'
+      responses:
+        '201':
+          description: 作成成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+
+  /posts/{postId}:
+    delete:
+      summary: 投稿削除
+      operationId: deletePost
+      parameters:
+        - name: postId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: 削除成功
+
+  /posts/{postId}/likes:
+    post:
+      summary: いいね
+      operationId: likePost
+      parameters:
+        - name: postId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+    delete:
+      summary: いいね取り消し
+      operationId: unlikePost
+      parameters:
+        - name: postId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+
+components:
+  schemas:
+    Post:
+      type: object
+      required:
+        - id
+        - content
+        - authorName
+        - createdAt
+        - likeCount
+      properties:
+        id:
+          type: string
+        content:
+          type: string
+        authorName:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        likeCount:
+          type: integer
+
+    CreatePostInput:
+      type: object
+      required:
+        - content
+      properties:
+        content:
+          type: string
+          maxLength: 280

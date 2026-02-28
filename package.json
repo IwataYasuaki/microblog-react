@@ -7,10 +7,14 @@
     "dev": "pnpm --filter frontend dev",
     "build": "pnpm --filter frontend build",
     "test": "pnpm --filter frontend test",
-    "test:infra": "pnpm --filter infra test"
+    "test:infra": "pnpm --filter infra test",
+    "generate:types": "openapi-typescript openapi.yaml -o shared/types/api.ts"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "packageManager": "pnpm@10.30.2"
+  "packageManager": "pnpm@10.30.2",
+  "devDependencies": {
+    "openapi-typescript": "^7.13.0"
+  }
 }

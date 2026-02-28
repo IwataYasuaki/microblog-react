@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { Post } from './Post'
-import type { Post as PostType } from '../types/post'
+import type { Post as PostType } from '@microblog/shared'
 
 const mockPost: PostType = {
   id: '1',

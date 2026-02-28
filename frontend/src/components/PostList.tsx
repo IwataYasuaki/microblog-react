@@ -1,4 +1,4 @@
-import type { Post } from '../types/post'
+import type { Post } from '@microblog/shared'
 import { Post as PostComponent } from './Post'
 
 type Props = {

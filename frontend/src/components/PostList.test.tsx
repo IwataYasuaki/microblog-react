@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import { PostList } from './PostList'
-import type { Post } from '../types/post'
+import type { Post } from '@microblog/shared'
 
 const mockPosts: Post[] = [
   {

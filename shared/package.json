@@ -1,0 +1,6 @@
+{
+  "name": "@microblog/shared",
+  "version": "0.0.0",
+  "private": true,
+  "main": "./types/index.ts"
+}

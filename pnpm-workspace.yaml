@@ -2,7 +2,4 @@ packages:
   - frontend
   - backend
   - infra
-
-onlyBuiltDependencies:
-  - esbuild
-  - unrs-resolver
+  - shared

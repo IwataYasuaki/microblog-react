@@ -1,4 +1,4 @@
-import type { Post as PostType } from '../types/post'
+import type { Post as PostType } from '@microblog/shared'
 import { LikeButton } from './LikeButton'
 
 type Props = {
