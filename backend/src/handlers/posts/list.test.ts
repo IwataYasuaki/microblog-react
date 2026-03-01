@@ -1,33 +1,20 @@
+import { QueryCommand } from '@aws-sdk/lib-dynamodb'
 import { handler } from './list'
-import { PostRepository } from '../../repositories/postRepository'
-
-vi.mock('../../repositories/postRepository')
-
-const mockListPosts = vi.fn()
-
-beforeEach(() => {
-  vi.mocked(PostRepository).mockImplementation(function () {
-    return {
-      listPosts: mockListPosts,
-      createPost: vi.fn(),
-      deletePost: vi.fn(),
-      likePost: vi.fn(),
-      unlikePost: vi.fn(),
-    }
-  })
-})
+import { ddbMock } from '../../test/setup'
 
 describe('listPosts handler', () => {
   it('投稿一覧を200で返す', async () => {
-    mockListPosts.mockResolvedValue([
-      {
-        id: '1',
-        content: 'テスト投稿',
-        authorName: 'テストユーザー',
-        createdAt: '2024-01-01T00:00:00Z',
-        likeCount: 0,
-      },
-    ])
+    ddbMock.on(QueryCommand).resolves({
+      Items: [
+        {
+          id: '1',
+          content: 'テスト投稿',
+          authorName: 'テストユーザー',
+          createdAt: '2024-01-01T00:00:00Z',
+          likeCount: 0,
+        },
+      ],
+    })
 
     const response = await handler()
 
@@ -36,7 +23,7 @@ describe('listPosts handler', () => {
   })
 
   it('エラー時は500を返す', async () => {
-    mockListPosts.mockRejectedValue(new Error('DynamoDB error'))
+    ddbMock.on(QueryCommand).rejects(new Error('DynamoDB error'))
 
     const response = await handler()
 

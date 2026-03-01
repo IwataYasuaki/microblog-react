@@ -1,20 +1,14 @@
 import { PostRepository } from './postRepository'
 import {
-  DynamoDBDocumentClient,
   QueryCommand,
   PutCommand,
   DeleteCommand,
   UpdateCommand,
 } from '@aws-sdk/lib-dynamodb'
 import { mockClient } from 'aws-sdk-client-mock'
-
-const ddbMock = mockClient(DynamoDBDocumentClient)
+import { ddbMock } from '../test/setup'
 
 describe('PostRepository', () => {
-  beforeEach(() => {
-    ddbMock.reset()
-  })
-
   describe('listPosts', () => {
     it('投稿一覧を取得できる', async () => {
       ddbMock.on(QueryCommand).resolves({

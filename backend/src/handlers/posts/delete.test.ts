@@ -1,25 +1,10 @@
+import { DeleteCommand } from '@aws-sdk/lib-dynamodb'
 import { handler } from './delete'
-import { PostRepository } from '../../repositories/postRepository'
-
-vi.mock('../../repositories/postRepository')
-
-const mockDeletePost = vi.fn()
-
-beforeEach(() => {
-  vi.mocked(PostRepository).mockImplementation(function () {
-    return {
-      listPosts: vi.fn(),
-      createPost: vi.fn(),
-      deletePost: mockDeletePost,
-      likePost: vi.fn(),
-      unlikePost: vi.fn(),
-    }
-  })
-})
+import { ddbMock } from '../../test/setup'
 
 describe('deletePost handler', () => {
   it('投稿を削除して204を返す', async () => {
-    mockDeletePost.mockResolvedValue(undefined)
+    ddbMock.on(DeleteCommand).resolves({})
 
     const response = await handler({ pathParameters: { postId: '1' } })
 
@@ -32,7 +17,7 @@ describe('deletePost handler', () => {
   })
 
   it('エラー時は500を返す', async () => {
-    mockDeletePost.mockRejectedValue(new Error('DynamoDB error'))
+    ddbMock.on(DeleteCommand).rejects(new Error('DynamoDB error'))
 
     const response = await handler({ pathParameters: { postId: '1' } })
 
