@@ -1,7 +1,7 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 import {
   DynamoDBDocumentClient,
-  QueryCommand,
+  ScanCommand,
   PutCommand,
   DeleteCommand,
   UpdateCommand,
@@ -21,7 +21,7 @@ export class PostRepository {
 
   async listPosts(): Promise<Post[]> {
     const result = await this.client.send(
-      new QueryCommand({
+      new ScanCommand({
         TableName: this.tableName,
       })
     )

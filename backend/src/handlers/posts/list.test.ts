@@ -1,10 +1,10 @@
-import { QueryCommand } from '@aws-sdk/lib-dynamodb'
+import { ScanCommand } from '@aws-sdk/lib-dynamodb'
 import { handler } from './list'
 import { ddbMock } from '../../test/setup'
 
 describe('listPosts handler', () => {
   it('投稿一覧を200で返す', async () => {
-    ddbMock.on(QueryCommand).resolves({
+    ddbMock.on(ScanCommand).resolves({
       Items: [
         {
           id: '1',
@@ -23,7 +23,7 @@ describe('listPosts handler', () => {
   })
 
   it('エラー時は500を返す', async () => {
-    ddbMock.on(QueryCommand).rejects(new Error('DynamoDB error'))
+    ddbMock.on(ScanCommand).rejects(new Error('DynamoDB error'))
 
     const response = await handler()
 

@@ -1,6 +1,6 @@
 import { PostRepository } from './postRepository'
 import {
-  QueryCommand,
+  ScanCommand,
   PutCommand,
   DeleteCommand,
   UpdateCommand,
@@ -11,7 +11,7 @@ import { ddbMock } from '../test/setup'
 describe('PostRepository', () => {
   describe('listPosts', () => {
     it('投稿一覧を取得できる', async () => {
-      ddbMock.on(QueryCommand).resolves({
+      ddbMock.on(ScanCommand).resolves({
         Items: [
           {
             id: '1',
@@ -31,7 +31,7 @@ describe('PostRepository', () => {
     })
 
     it('投稿が0件の場合、空配列を返す', async () => {
-      ddbMock.on(QueryCommand).resolves({ Items: [] })
+      ddbMock.on(ScanCommand).resolves({ Items: [] })
 
       const repository = new PostRepository('test-table')
       const posts = await repository.listPosts()
