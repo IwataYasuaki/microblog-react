@@ -1,11 +1,9 @@
 import { PostRepository } from '../../repositories/postRepository'
+import { createResponse } from '../../utils/response'
 
 export const handler = async (event: { body: string | null }) => {
   if (!event.body) {
-    return {
-      statusCode: 400,
-      body: JSON.stringify({ message: 'Bad Request' }),
-    }
+    return createResponse(400, { message: 'Bad Request' })
   }
 
   const { content, authorName } = JSON.parse(event.body)
@@ -13,14 +11,8 @@ export const handler = async (event: { body: string | null }) => {
 
   try {
     const post = await repository.createPost({ content, authorName })
-    return {
-      statusCode: 201,
-      body: JSON.stringify(post),
-    }
+    return createResponse(201, post)
   } catch (error) {
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ message: 'Internal Server Error' }),
-    }
+    return createResponse(500, { message: 'Internal Server Error' })
   }
 }

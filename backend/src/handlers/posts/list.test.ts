@@ -29,4 +29,12 @@ describe('listPosts handler', () => {
 
     expect(response.statusCode).toBe(500)
   })
+
+  it('レスポンスにCORSヘッダーが含まれる', async () => {
+    ddbMock.on(ScanCommand).resolves({ Items: [] })
+
+    const response = await handler()
+
+    expect(response.headers['Access-Control-Allow-Origin']).toBe('*')
+  })
 })

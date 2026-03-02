@@ -24,4 +24,10 @@ describe('InfraStack', () => {
   it('API Gatewayが作成される', () => {
     template.resourceCountIs('AWS::ApiGateway::RestApi', 1)
   })
+
+  it('API GatewayにCORSが設定される', () => {
+    template.hasResourceProperties('AWS::ApiGateway::Method', {
+      HttpMethod: 'OPTIONS',
+    })
+  })
 })

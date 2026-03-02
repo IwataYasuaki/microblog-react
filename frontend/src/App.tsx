@@ -1,39 +1,32 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { PostList } from './components/PostList'
 import { PostForm } from './components/PostForm'
+import { fetchPosts, createPost, likePost, unlikePost } from './api/posts'
 import type { Post } from '@microblog/shared'
 
 export default function App() {
   const [posts, setPosts] = useState<Post[]>([])
   const [likedPostIds, setLikedPostIds] = useState<string[]>([])
 
-  const handleSubmit = (content: string) => {
-    const newPost: Post = {
-      id: crypto.randomUUID(),
-      content,
-      authorName: 'テストユーザー',
-      createdAt: new Date().toISOString(),
-      likeCount: 0,
-    }
+  useEffect(() => {
+    fetchPosts().then(setPosts)
+  }, [])
+
+  const handleSubmit = async (content: string) => {
+    const newPost = await createPost({ content })
     setPosts([newPost, ...posts])
   }
 
-  const handleLike = (postId: string) => {
+  const handleLike = async (postId: string) => {
+    const updatedPost = await likePost(postId)
     setLikedPostIds([...likedPostIds, postId])
-    setPosts(
-      posts.map((post) =>
-        post.id === postId ? { ...post, likeCount: post.likeCount + 1 } : post
-      )
-    )
+    setPosts(posts.map((post) => (post.id === postId ? updatedPost : post)))
   }
 
-  const handleUnlike = (postId: string) => {
+  const handleUnlike = async (postId: string) => {
+    const updatedPost = await unlikePost(postId)
     setLikedPostIds(likedPostIds.filter((id) => id !== postId))
-    setPosts(
-      posts.map((post) =>
-        post.id === postId ? { ...post, likeCount: post.likeCount - 1 } : post
-      )
-    )
+    setPosts(posts.map((post) => (post.id === postId ? updatedPost : post)))
   }
 
   return (

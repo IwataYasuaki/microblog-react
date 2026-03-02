@@ -61,6 +61,11 @@ export class InfraStack extends cdk.Stack {
     // API Gateway
     const api = new apigateway.RestApi(this, 'MicroblogApi', {
       restApiName: 'Microblog API',
+      defaultCorsPreflightOptions: {
+        allowOrigins: apigateway.Cors.ALL_ORIGINS,
+        allowMethods: apigateway.Cors.ALL_METHODS,
+        allowHeaders: ['Content-Type', 'Authorization'],
+      },
     })
 
     const posts = api.root.addResource('posts')

@@ -32,4 +32,20 @@ describe('unlikePost handler', () => {
 
     expect(response.statusCode).toBe(500)
   })
+
+  it('レスポンスにCORSヘッダーが含まれる', async () => {
+    ddbMock.on(UpdateCommand).resolves({
+      Attributes: {
+        id: '1',
+        content: 'テスト投稿',
+        authorName: 'テストユーザー',
+        createdAt: '2024-01-01T00:00:00Z',
+        likeCount: 0,
+      },
+    })
+
+    const response = await handler({ pathParameters: { postId: '1' } })
+
+    expect(response.headers['Access-Control-Allow-Origin']).toBe('*')
+  })
 })

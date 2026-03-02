@@ -34,4 +34,17 @@ describe('createPost handler', () => {
 
     expect(response.statusCode).toBe(500)
   })
+
+  it('レスポンスにCORSヘッダーが含まれる', async () => {
+    ddbMock.on(PutCommand).resolves({})
+
+    const response = await handler({
+      body: JSON.stringify({
+        content: '新しい投稿',
+        authorName: 'テストユーザー',
+      }),
+    })
+
+    expect(response.headers['Access-Control-Allow-Origin']).toBe('*')
+  })
 })

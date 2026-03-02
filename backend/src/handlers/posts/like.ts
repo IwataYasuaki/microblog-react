@@ -1,13 +1,11 @@
 import { PostRepository } from '../../repositories/postRepository'
+import { createResponse } from '../../utils/response'
 
 export const handler = async (event: {
   pathParameters: { postId: string } | null
 }) => {
   if (!event.pathParameters?.postId) {
-    return {
-      statusCode: 400,
-      body: JSON.stringify({ message: 'Bad Request' }),
-    }
+    return createResponse(400, { message: 'Bad Request' })
   }
 
   const { postId } = event.pathParameters
@@ -15,14 +13,8 @@ export const handler = async (event: {
 
   try {
     const post = await repository.likePost(postId)
-    return {
-      statusCode: 200,
-      body: JSON.stringify(post),
-    }
+    return createResponse(200, post)
   } catch (error) {
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ message: 'Internal Server Error' }),
-    }
+    return createResponse(500, { message: 'Internal Server Error' })
   }
 }

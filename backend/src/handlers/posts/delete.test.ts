@@ -23,4 +23,12 @@ describe('deletePost handler', () => {
 
     expect(response.statusCode).toBe(500)
   })
+
+  it('レスポンスにCORSヘッダーが含まれる', async () => {
+    ddbMock.on(DeleteCommand).resolves({})
+
+    const response = await handler({ pathParameters: { postId: '1' } })
+
+    expect(response.headers['Access-Control-Allow-Origin']).toBe('*')
+  })
 })
