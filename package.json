@@ -10,7 +10,8 @@
     "test": "pnpm --filter frontend test",
     "test:backend": "pnpm --filter backend test",
     "test:infra": "pnpm run build:backend && pnpm --filter infra test",
-    "generate:types": "openapi-typescript openapi.yaml -o shared/types/api.ts"
+    "generate:types": "openapi-typescript openapi.yaml -o shared/types/api.ts",
+    "deploy:all": "pnpm run build && pnpm run build:backend && cd infra && pnpm cdk deploy"
   },
   "keywords": [],
   "author": "",

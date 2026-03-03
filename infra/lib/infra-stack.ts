@@ -2,6 +2,10 @@ import * as cdk from 'aws-cdk-lib/core'
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb'
 import * as lambda from 'aws-cdk-lib/aws-lambda'
 import * as apigateway from 'aws-cdk-lib/aws-apigateway'
+import * as s3 from 'aws-cdk-lib/aws-s3'
+import * as s3deploy from 'aws-cdk-lib/aws-s3-deployment'
+import * as cloudfront from 'aws-cdk-lib/aws-cloudfront'
+import * as origins from 'aws-cdk-lib/aws-cloudfront-origins'
 import * as path from 'path'
 import { Construct } from 'constructs'
 
@@ -78,5 +82,47 @@ export class InfraStack extends cdk.Stack {
     const likes = post.addResource('likes')
     likes.addMethod('POST', new apigateway.LambdaIntegration(likePostFn))
     likes.addMethod('DELETE', new apigateway.LambdaIntegration(unlikePostFn))
+
+    // S3バケット
+    const siteBucket = new s3.Bucket(this, 'SiteBucket', {
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
+      autoDeleteObjects: true,
+    })
+
+    // CloudFront
+    const distribution = new cloudfront.Distribution(this, 'SiteDistribution', {
+      defaultBehavior: {
+        origin: origins.S3BucketOrigin.withOriginAccessControl(siteBucket),
+        viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+      },
+      defaultRootObject: 'index.html',
+      errorResponses: [
+        {
+          httpStatus: 403,
+          responseHttpStatus: 200,
+          responsePagePath: '/index.html',
+        },
+        {
+          httpStatus: 404,
+          responseHttpStatus: 200,
+          responsePagePath: '/index.html',
+        },
+      ],
+    })
+
+    // CloudFrontのURLを出力
+    new cdk.CfnOutput(this, 'DistributionDomainName', {
+      value: distribution.distributionDomainName,
+    })
+
+    // S3にフロントエンド資材をデプロイ
+    new s3deploy.BucketDeployment(this, 'DeployWebsite', {
+      sources: [
+        s3deploy.Source.asset(path.join(__dirname, '../../frontend/dist')),
+      ],
+      destinationBucket: siteBucket,
+      distribution,
+      distributionPaths: ['/*'],
+    })
   }
 }

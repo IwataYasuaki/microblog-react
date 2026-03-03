@@ -17,8 +17,11 @@ describe('InfraStack', () => {
     })
   })
 
-  it('Lambda関数が5つ作成される', () => {
-    template.resourceCountIs('AWS::Lambda::Function', 5)
+  it('Lambda関数が7つ作成される', () => {
+    // 5つのハンドラー関数
+    // + S3のautoDeleteObjects: trueによるオブジェクト削除用Lambda
+    // + BucketDeploymentによるデプロイ用Lambda
+    template.resourceCountIs('AWS::Lambda::Function', 7)
   })
 
   it('API Gatewayが作成される', () => {
@@ -29,5 +32,17 @@ describe('InfraStack', () => {
     template.hasResourceProperties('AWS::ApiGateway::Method', {
       HttpMethod: 'OPTIONS',
     })
+  })
+
+  it('S3バケットが作成される', () => {
+    template.resourceCountIs('AWS::S3::Bucket', 1)
+  })
+
+  it('CloudFrontディストリビューションが作成される', () => {
+    template.resourceCountIs('AWS::CloudFront::Distribution', 1)
+  })
+
+  it('BucketDeploymentが作成される', () => {
+    template.resourceCountIs('Custom::CDKBucketDeployment', 1)
   })
 })
