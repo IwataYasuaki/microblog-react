@@ -34,6 +34,12 @@ describe('InfraStack', () => {
     })
   })
 
+  it('API GatewayにCognitoオーソライザーが設定される', () => {
+    template.hasResourceProperties('AWS::ApiGateway::Authorizer', {
+      Type: 'COGNITO_USER_POOLS',
+    })
+  })
+
   it('S3バケットが作成される', () => {
     template.resourceCountIs('AWS::S3::Bucket', 1)
   })
@@ -44,5 +50,13 @@ describe('InfraStack', () => {
 
   it('BucketDeploymentが作成される', () => {
     template.resourceCountIs('Custom::CDKBucketDeployment', 1)
+  })
+
+  it('Cognitoユーザープールが作成される', () => {
+    template.resourceCountIs('AWS::Cognito::UserPool', 1)
+  })
+
+  it('CognitoユーザープールクライアントJが作成される', () => {
+    template.resourceCountIs('AWS::Cognito::UserPoolClient', 1)
   })
 })

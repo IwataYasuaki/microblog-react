@@ -6,6 +6,7 @@ import * as s3 from 'aws-cdk-lib/aws-s3'
 import * as s3deploy from 'aws-cdk-lib/aws-s3-deployment'
 import * as cloudfront from 'aws-cdk-lib/aws-cloudfront'
 import * as origins from 'aws-cdk-lib/aws-cloudfront-origins'
+import * as cognito from 'aws-cdk-lib/aws-cognito'
 import * as path from 'path'
 import { Construct } from 'constructs'
 
@@ -62,6 +63,38 @@ export class InfraStack extends cdk.Stack {
     table.grantReadWriteData(likePostFn)
     table.grantReadWriteData(unlikePostFn)
 
+    // Cognito
+    const userPool = new cognito.UserPool(this, 'UserPool', {
+      selfSignUpEnabled: true,
+      signInAliases: { email: true },
+      autoVerify: { email: true },
+      passwordPolicy: {
+        minLength: 8,
+        requireLowercase: true,
+        requireUppercase: true,
+        requireDigits: true,
+        requireSymbols: false,
+      },
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
+    })
+
+    const userPoolClient = new cognito.UserPoolClient(this, 'UserPoolClient', {
+      userPool,
+      authFlows: {
+        userPassword: true,
+        userSrp: true,
+      },
+    })
+
+    // UserPoolIdとClientIdを出力
+    new cdk.CfnOutput(this, 'UserPoolId', {
+      value: userPool.userPoolId,
+    })
+
+    new cdk.CfnOutput(this, 'UserPoolClientId', {
+      value: userPoolClient.userPoolClientId,
+    })
+
     // API Gateway
     const api = new apigateway.RestApi(this, 'MicroblogApi', {
       restApiName: 'Microblog API',
@@ -72,16 +105,36 @@ export class InfraStack extends cdk.Stack {
       },
     })
 
+    // Cognitoオーソライザー
+    const authorizer = new apigateway.CognitoUserPoolsAuthorizer(
+      this,
+      'Authorizer',
+      {
+        cognitoUserPools: [userPool],
+      }
+    )
+
     const posts = api.root.addResource('posts')
     posts.addMethod('GET', new apigateway.LambdaIntegration(listPostsFn))
-    posts.addMethod('POST', new apigateway.LambdaIntegration(createPostFn))
-
+    posts.addMethod('POST', new apigateway.LambdaIntegration(createPostFn), {
+      authorizer,
+      authorizationType: apigateway.AuthorizationType.COGNITO,
+    })
     const post = posts.addResource('{postId}')
-    post.addMethod('DELETE', new apigateway.LambdaIntegration(deletePostFn))
+    post.addMethod('DELETE', new apigateway.LambdaIntegration(deletePostFn), {
+      authorizer,
+      authorizationType: apigateway.AuthorizationType.COGNITO,
+    })
 
     const likes = post.addResource('likes')
-    likes.addMethod('POST', new apigateway.LambdaIntegration(likePostFn))
-    likes.addMethod('DELETE', new apigateway.LambdaIntegration(unlikePostFn))
+    likes.addMethod('POST', new apigateway.LambdaIntegration(likePostFn), {
+      authorizer,
+      authorizationType: apigateway.AuthorizationType.COGNITO,
+    })
+    likes.addMethod('DELETE', new apigateway.LambdaIntegration(unlikePostFn), {
+      authorizer,
+      authorizationType: apigateway.AuthorizationType.COGNITO,
+    })
 
     // S3バケット
     const siteBucket = new s3.Bucket(this, 'SiteBucket', {
