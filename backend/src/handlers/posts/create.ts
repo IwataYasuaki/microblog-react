@@ -1,12 +1,23 @@
 import { PostRepository } from '../../repositories/postRepository'
 import { createResponse } from '../../utils/response'
 
-export const handler = async (event: { body: string | null }) => {
+export const handler = async (event: {
+  body: string | null
+  requestContext?: {
+    authorizer?: {
+      claims?: {
+        'cognito:username'?: string
+      }
+    }
+  }
+}) => {
   if (!event.body) {
     return createResponse(400, { message: 'Bad Request' })
   }
 
-  const { content, authorName } = JSON.parse(event.body)
+  const { content } = JSON.parse(event.body)
+  const authorName =
+    event.requestContext?.authorizer?.claims?.['cognito:username'] ?? '名無し'
   const repository = new PostRepository(process.env.TABLE_NAME ?? 'posts')
 
   try {
