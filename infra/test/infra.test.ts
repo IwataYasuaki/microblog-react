@@ -1,5 +1,5 @@
 import * as cdk from 'aws-cdk-lib/core'
-import { Template } from 'aws-cdk-lib/assertions'
+import { Match, Template } from 'aws-cdk-lib/assertions'
 import { InfraStack } from '../lib/infra-stack'
 
 let template: Template
@@ -58,5 +58,16 @@ describe('InfraStack', () => {
 
   it('CognitoユーザープールクライアントJが作成される', () => {
     template.resourceCountIs('AWS::Cognito::UserPoolClient', 1)
+  })
+
+  it('CognitoユーザープールにEmailが必須属性として設定される', () => {
+    template.hasResourceProperties('AWS::Cognito::UserPool', {
+      Schema: Match.arrayWith([
+        Match.objectLike({
+          Name: 'email',
+          Required: true,
+        }),
+      ]),
+    })
   })
 })

@@ -5,7 +5,7 @@ import './lib/amplify'
 
 export default function App() {
   return (
-    <Authenticator>
+    <Authenticator signUpAttributes={['email']}>
       {({ signOut }) => (
         <div>
           <h1>microblog</h1>

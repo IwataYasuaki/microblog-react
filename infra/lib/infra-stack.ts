@@ -66,8 +66,14 @@ export class InfraStack extends cdk.Stack {
     // Cognito
     const userPool = new cognito.UserPool(this, 'UserPool', {
       selfSignUpEnabled: true,
-      signInAliases: { email: true },
+      signInAliases: { email: true, username: true },
       autoVerify: { email: true },
+      standardAttributes: {
+        email: {
+          required: true,
+          mutable: true,
+        },
+      },
       passwordPolicy: {
         minLength: 8,
         requireLowercase: true,
