@@ -4,6 +4,8 @@ import {
   PutCommand,
   DeleteCommand,
   UpdateCommand,
+  BatchGetCommand,
+  TransactWriteCommand,
 } from '@aws-sdk/lib-dynamodb'
 import { mockClient } from 'aws-sdk-client-mock'
 import { ddbMock } from '../test/setup'
@@ -23,7 +25,7 @@ describe('PostRepository', () => {
         ],
       })
 
-      const repository = new PostRepository('test-table')
+      const repository = new PostRepository('test-table', 'test-likes-table')
       const posts = await repository.listPosts()
 
       expect(posts).toHaveLength(1)
@@ -33,7 +35,7 @@ describe('PostRepository', () => {
     it('投稿が0件の場合、空配列を返す', async () => {
       ddbMock.on(ScanCommand).resolves({ Items: [] })
 
-      const repository = new PostRepository('test-table')
+      const repository = new PostRepository('test-table', 'test-likes-table')
       const posts = await repository.listPosts()
 
       expect(posts).toHaveLength(0)
@@ -44,7 +46,7 @@ describe('PostRepository', () => {
     it('投稿を作成できる', async () => {
       ddbMock.on(PutCommand).resolves({})
 
-      const repository = new PostRepository('test-table')
+      const repository = new PostRepository('test-table', 'test-likes-table')
       const post = await repository.createPost({
         content: '新しい投稿',
         authorName: 'テストユーザー',
@@ -62,46 +64,53 @@ describe('PostRepository', () => {
     it('投稿を削除できる', async () => {
       ddbMock.on(DeleteCommand).resolves({})
 
-      const repository = new PostRepository('test-table')
+      const repository = new PostRepository('test-table', 'test-likes-table')
       await expect(repository.deletePost('1')).resolves.not.toThrow()
     })
   })
 
   describe('likePost', () => {
-    it('いいね数を1増やせる', async () => {
-      ddbMock.on(UpdateCommand).resolves({
-        Attributes: {
-          id: '1',
-          content: 'テスト投稿',
-          authorName: 'テストユーザー',
-          createdAt: '2024-01-01T00:00:00Z',
-          likeCount: 1,
-        },
-      })
+    it('いいね数を1増やしLikesテーブルに追加する', async () => {
+      ddbMock.on(TransactWriteCommand).resolves({})
 
-      const repository = new PostRepository('test-table')
-      const post = await repository.likePost('1')
-
-      expect(post.likeCount).toBe(1)
+      const repository = new PostRepository('test-table', 'test-likes-table')
+      await expect(repository.likePost('post1', 'user1')).resolves.not.toThrow()
     })
   })
 
   describe('unlikePost', () => {
-    it('いいね数を1減らせる', async () => {
-      ddbMock.on(UpdateCommand).resolves({
-        Attributes: {
-          id: '1',
-          content: 'テスト投稿',
-          authorName: 'テストユーザー',
-          createdAt: '2024-01-01T00:00:00Z',
-          likeCount: 0,
+    it('いいね数を1減らしLikesテーブルから削除する', async () => {
+      ddbMock.on(TransactWriteCommand).resolves({})
+
+      const repository = new PostRepository('test-table', 'test-likes-table')
+      await expect(
+        repository.unlikePost('post1', 'user1')
+      ).resolves.not.toThrow()
+    })
+  })
+
+  describe('getLikedPostIds', () => {
+    it('いいねしている投稿IDを返す', async () => {
+      ddbMock.on(BatchGetCommand).resolves({
+        Responses: {
+          'test-likes-table': [{ userId: 'user1', postId: 'post1' }],
         },
       })
 
-      const repository = new PostRepository('test-table')
-      const post = await repository.unlikePost('1')
+      const repository = new PostRepository('test-table', 'test-likes-table')
+      const likedPostIds = await repository.getLikedPostIds('user1', [
+        'post1',
+        'post2',
+      ])
 
-      expect(post.likeCount).toBe(0)
+      expect(likedPostIds).toEqual(['post1'])
+    })
+
+    it('投稿IDが空の場合は空配列を返す', async () => {
+      const repository = new PostRepository('test-table', 'test-likes-table')
+      const likedPostIds = await repository.getLikedPostIds('user1', [])
+
+      expect(likedPostIds).toEqual([])
     })
   })
 })

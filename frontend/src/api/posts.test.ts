@@ -75,50 +75,29 @@ describe('posts API', () => {
   })
 
   it('いいねできる', async () => {
-    mockFetch.mockResolvedValue({
-      ok: true,
-      json: async () => ({
-        id: '1',
-        content: 'テスト投稿',
-        authorName: 'テストユーザー',
-        createdAt: '2024-01-01T00:00:00Z',
-        likeCount: 1,
-      }),
-    })
+    mockFetch.mockResolvedValue({ ok: true })
 
-    const post = await likePost('1')
+    await likePost('1')
 
-    expect(post.likeCount).toBe(1)
+    expect(mockFetch).toHaveBeenCalledWith(
+      expect.stringContaining('/posts/1/likes'),
+      expect.objectContaining({ method: 'POST' })
+    )
   })
 
   it('いいねを取り消せる', async () => {
-    mockFetch.mockResolvedValue({
-      ok: true,
-      json: async () => ({
-        id: '1',
-        content: 'テスト投稿',
-        authorName: 'テストユーザー',
-        createdAt: '2024-01-01T00:00:00Z',
-        likeCount: 0,
-      }),
-    })
+    mockFetch.mockResolvedValue({ ok: true })
 
-    const post = await unlikePost('1')
+    await unlikePost('1')
 
-    expect(post.likeCount).toBe(0)
+    expect(mockFetch).toHaveBeenCalledWith(
+      expect.stringContaining('/posts/1/likes'),
+      expect.objectContaining({ method: 'DELETE' })
+    )
   })
 
   it('いいねにAuthorizationヘッダーが含まれる', async () => {
-    mockFetch.mockResolvedValue({
-      ok: true,
-      json: async () => ({
-        id: '1',
-        content: 'テスト投稿',
-        authorName: 'テストユーザー',
-        createdAt: '2024-01-01T00:00:00Z',
-        likeCount: 1,
-      }),
-    })
+    mockFetch.mockResolvedValue({ ok: true })
 
     await likePost('1')
 
@@ -133,16 +112,7 @@ describe('posts API', () => {
   })
 
   it('いいね取り消しにAuthorizationヘッダーが含まれる', async () => {
-    mockFetch.mockResolvedValue({
-      ok: true,
-      json: async () => ({
-        id: '1',
-        content: 'テスト投稿',
-        authorName: 'テストユーザー',
-        createdAt: '2024-01-01T00:00:00Z',
-        likeCount: 0,
-      }),
-    })
+    mockFetch.mockResolvedValue({ ok: true })
 
     await unlikePost('1')
 

@@ -10,76 +10,69 @@ type Props = {
 
 export function Timeline({ currentUsername = '' }: Props) {
   const [posts, setPosts] = useState<Post[]>([])
-  const [likedPostIds, setLikedPostIds] = useState<string[]>([])
 
   useEffect(() => {
     fetchPosts().then(setPosts)
   }, [])
 
   const handleSubmit = async (content: string) => {
-    // 先に画面を更新
-    const tempPost = {
+    const tempPost: Post = {
       id: crypto.randomUUID(),
       content,
       authorName: currentUsername,
       createdAt: new Date().toISOString(),
       likeCount: 0,
+      likedByMe: false,
     }
-    setPosts([tempPost, ...posts])
+    setPosts((prev) => [tempPost, ...prev])
 
-    // その後APIを呼ぶ
     try {
       const newPost = await createPost({ content })
       setPosts((prev) =>
         prev.map((post) => (post.id === tempPost.id ? newPost : post))
       )
     } catch {
-      // 失敗したら元に戻す
       setPosts((prev) => prev.filter((post) => post.id !== tempPost.id))
     }
   }
 
   const handleLike = async (postId: string) => {
-    // 先に画面を更新
-    setLikedPostIds([...likedPostIds, postId])
-    setPosts(
-      posts.map((post) =>
-        post.id === postId ? { ...post, likeCount: post.likeCount + 1 } : post
+    setPosts((prev) =>
+      prev.map((post) =>
+        post.id === postId
+          ? { ...post, likeCount: post.likeCount + 1, likedByMe: true }
+          : post
       )
     )
-    // その後APIを呼ぶ
     try {
-      const updatedPost = await likePost(postId)
-      setPosts(posts.map((post) => (post.id === postId ? updatedPost : post)))
+      await likePost(postId)
     } catch {
-      // 失敗したら元に戻す
-      setLikedPostIds(likedPostIds.filter((id) => id !== postId))
-      setPosts(
-        posts.map((post) =>
-          post.id === postId ? { ...post, likeCount: post.likeCount - 1 } : post
+      setPosts((prev) =>
+        prev.map((post) =>
+          post.id === postId
+            ? { ...post, likeCount: post.likeCount - 1, likedByMe: false }
+            : post
         )
       )
     }
   }
 
   const handleUnlike = async (postId: string) => {
-    // 先に画面を更新
-    setLikedPostIds(likedPostIds.filter((id) => id !== postId))
-    setPosts(
-      posts.map((post) =>
-        post.id === postId ? { ...post, likeCount: post.likeCount - 1 } : post
+    setPosts((prev) =>
+      prev.map((post) =>
+        post.id === postId
+          ? { ...post, likeCount: post.likeCount - 1, likedByMe: false }
+          : post
       )
     )
-    // その後APIを呼ぶ
     try {
-      const updatedPost = await unlikePost(postId)
-      setPosts(posts.map((post) => (post.id === postId ? updatedPost : post)))
+      await unlikePost(postId)
     } catch {
-      // 失敗したら元に戻す
-      setLikedPostIds([...likedPostIds, postId])
-      setPosts(
-        posts.map((post) =>
-          post.id === postId ? { ...post, likeCount: post.likeCount + 1 } : post
+      setPosts((prev) =>
+        prev.map((post) =>
+          post.id === postId
+            ? { ...post, likeCount: post.likeCount + 1, likedByMe: true }
+            : post
         )
       )
     }
@@ -88,12 +81,7 @@ export function Timeline({ currentUsername = '' }: Props) {
   return (
     <>
       <PostForm onSubmit={handleSubmit} />
-      <PostList
-        posts={posts}
-        likedPostIds={likedPostIds}
-        onLike={handleLike}
-        onUnlike={handleUnlike}
-      />
+      <PostList posts={posts} onLike={handleLike} onUnlike={handleUnlike} />
     </>
   )
 }

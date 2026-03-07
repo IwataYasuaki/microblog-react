@@ -31,7 +31,7 @@ export async function createPost(input: CreatePostInput): Promise<Post> {
   return response.json()
 }
 
-export async function likePost(postId: string): Promise<Post> {
+export async function likePost(postId: string): Promise<void> {
   const response = await fetch(`${BASE_URL}/posts/${postId}/likes`, {
     method: 'POST',
     headers: await authHeaders(),
@@ -39,10 +39,9 @@ export async function likePost(postId: string): Promise<Post> {
   if (!response.ok) {
     throw new Error('いいねに失敗しました')
   }
-  return response.json()
 }
 
-export async function unlikePost(postId: string): Promise<Post> {
+export async function unlikePost(postId: string): Promise<void> {
   const response = await fetch(`${BASE_URL}/posts/${postId}/likes`, {
     method: 'DELETE',
     headers: await authHeaders(),
@@ -50,5 +49,4 @@ export async function unlikePost(postId: string): Promise<Post> {
   if (!response.ok) {
     throw new Error('いいねの取り消しに失敗しました')
   }
-  return response.json()
 }

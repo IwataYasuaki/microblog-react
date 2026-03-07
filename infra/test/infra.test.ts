@@ -70,4 +70,27 @@ describe('InfraStack', () => {
       ]),
     })
   })
+
+  it('Likesテーブルが作成される', () => {
+    template.hasResourceProperties('AWS::DynamoDB::Table', {
+      KeySchema: [
+        { AttributeName: 'userId', KeyType: 'HASH' },
+        { AttributeName: 'postId', KeyType: 'RANGE' },
+      ],
+      AttributeDefinitions: [
+        { AttributeName: 'userId', AttributeType: 'S' },
+        { AttributeName: 'postId', AttributeType: 'S' },
+      ],
+    })
+  })
+
+  it('Lambda関数にLikesテーブル名が環境変数として渡される', () => {
+    template.hasResourceProperties('AWS::Lambda::Function', {
+      Environment: {
+        Variables: {
+          LIKES_TABLE_NAME: { Ref: Match.stringLikeRegexp('LikesTable') },
+        },
+      },
+    })
+  })
 })

@@ -2,6 +2,7 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { Timeline } from './Timeline'
 import * as postsApi from '../api/posts'
+import type { Post } from '@microblog/shared'
 
 vi.mock('../api/posts')
 
@@ -10,29 +11,21 @@ const mockCreatePost = vi.mocked(postsApi.createPost)
 const mockLikePost = vi.mocked(postsApi.likePost)
 const mockUnlikePost = vi.mocked(postsApi.unlikePost)
 
+const mockPost = (overrides?: Partial<Post>): Post => ({
+  id: '1',
+  content: 'テスト投稿',
+  authorName: 'テストユーザー',
+  createdAt: '2024-01-01T00:00:00Z',
+  likeCount: 0,
+  likedByMe: false,
+  ...overrides,
+})
+
 beforeEach(() => {
   mockFetchPosts.mockResolvedValue([])
-  mockCreatePost.mockResolvedValue({
-    id: '1',
-    content: '新しい投稿',
-    authorName: 'テストユーザー',
-    createdAt: '2024-01-01T00:00:00Z',
-    likeCount: 0,
-  })
-  mockLikePost.mockResolvedValue({
-    id: '1',
-    content: '新しい投稿',
-    authorName: 'テストユーザー',
-    createdAt: '2024-01-01T00:00:00Z',
-    likeCount: 1,
-  })
-  mockUnlikePost.mockResolvedValue({
-    id: '1',
-    content: '新しい投稿',
-    authorName: 'テストユーザー',
-    createdAt: '2024-01-01T00:00:00Z',
-    likeCount: 0,
-  })
+  mockCreatePost.mockResolvedValue(mockPost())
+  mockLikePost.mockResolvedValue(mockPost({ likeCount: 1, likedByMe: true }))
+  mockUnlikePost.mockResolvedValue(mockPost())
 })
 
 describe('Timeline', () => {
@@ -44,21 +37,13 @@ describe('Timeline', () => {
 
   it('新しい投稿を追加するとタイムラインに表示される', async () => {
     render(<Timeline />)
-    await userEvent.type(screen.getByRole('textbox'), '新しい投稿')
+    await userEvent.type(screen.getByRole('textbox'), 'テスト投稿')
     await userEvent.click(screen.getByRole('button', { name: '投稿' }))
-    expect(screen.getByText('新しい投稿')).toBeInTheDocument()
+    expect(screen.getByText('テスト投稿')).toBeInTheDocument()
   })
 
   it('いいねボタンを押すといいね済みになる', async () => {
-    mockFetchPosts.mockResolvedValue([
-      {
-        id: '1',
-        content: 'テスト投稿',
-        authorName: 'テストユーザー',
-        createdAt: '2024-01-01T00:00:00Z',
-        likeCount: 0,
-      },
-    ])
+    mockFetchPosts.mockResolvedValue([mockPost()])
     render(<Timeline />)
     await screen.findByText('テスト投稿')
     await userEvent.click(screen.getByRole('button', { name: 'いいね' }))
@@ -68,15 +53,7 @@ describe('Timeline', () => {
   })
 
   it('いいね済みの状態でボタンを押すといいねが取り消される', async () => {
-    mockFetchPosts.mockResolvedValue([
-      {
-        id: '1',
-        content: 'テスト投稿',
-        authorName: 'テストユーザー',
-        createdAt: '2024-01-01T00:00:00Z',
-        likeCount: 0,
-      },
-    ])
+    mockFetchPosts.mockResolvedValue([mockPost()])
     render(<Timeline />)
     await screen.findByText('テスト投稿')
     await userEvent.click(screen.getByRole('button', { name: 'いいね' }))
@@ -85,15 +62,7 @@ describe('Timeline', () => {
   })
 
   it('いいねボタンを押すといいね数が1増える', async () => {
-    mockFetchPosts.mockResolvedValue([
-      {
-        id: '1',
-        content: 'テスト投稿',
-        authorName: 'テストユーザー',
-        createdAt: '2024-01-01T00:00:00Z',
-        likeCount: 0,
-      },
-    ])
+    mockFetchPosts.mockResolvedValue([mockPost()])
     render(<Timeline />)
     await screen.findByText('テスト投稿')
     await userEvent.click(screen.getByRole('button', { name: 'いいね' }))
@@ -101,15 +70,7 @@ describe('Timeline', () => {
   })
 
   it('いいね済みの状態でボタンを押すといいね数が1減る', async () => {
-    mockFetchPosts.mockResolvedValue([
-      {
-        id: '1',
-        content: 'テスト投稿',
-        authorName: 'テストユーザー',
-        createdAt: '2024-01-01T00:00:00Z',
-        likeCount: 1,
-      },
-    ])
+    mockFetchPosts.mockResolvedValue([mockPost()])
     render(<Timeline />)
     await screen.findByText('テスト投稿')
     await userEvent.click(screen.getByRole('button', { name: 'いいね' }))
@@ -118,16 +79,9 @@ describe('Timeline', () => {
   })
 
   it('いいねボタンを押すとAPIレスポンスを待たずに即座にいいね済みになる', async () => {
+    // 永遠に解決しないPromiseを返すことで、APIレスポンスを待たずに画面が更新されることを確認する
     mockLikePost.mockReturnValue(new Promise(() => {}))
-    mockFetchPosts.mockResolvedValue([
-      {
-        id: '1',
-        content: 'テスト投稿',
-        authorName: 'テストユーザー',
-        createdAt: '2024-01-01T00:00:00Z',
-        likeCount: 0,
-      },
-    ])
+    mockFetchPosts.mockResolvedValue([mockPost()])
 
     render(<Timeline />)
     await screen.findByText('テスト投稿')
@@ -140,16 +94,9 @@ describe('Timeline', () => {
   })
 
   it('いいね済みの状態でボタンを押すとAPIレスポンスを待たずに即座にいいねが取り消される', async () => {
+    // 永遠に解決しないPromiseを返すことで、APIレスポンスを待たずに画面が更新されることを確認する
     mockUnlikePost.mockReturnValue(new Promise(() => {}))
-    mockFetchPosts.mockResolvedValue([
-      {
-        id: '1',
-        content: 'テスト投稿',
-        authorName: 'テストユーザー',
-        createdAt: '2024-01-01T00:00:00Z',
-        likeCount: 0,
-      },
-    ])
+    mockFetchPosts.mockResolvedValue([mockPost()])
 
     render(<Timeline />)
     await screen.findByText('テスト投稿')
@@ -160,6 +107,7 @@ describe('Timeline', () => {
   })
 
   it('投稿するとAPIレスポンスを待たずに即座にタイムラインに表示される', async () => {
+    // 永遠に解決しないPromiseを返すことで、APIレスポンスを待たずに画面が更新されることを確認する
     mockCreatePost.mockReturnValue(new Promise(() => {}))
 
     render(<Timeline currentUsername="yamada_taro" />)

@@ -21,12 +21,19 @@ export class InfraStack extends cdk.Stack {
       removalPolicy: cdk.RemovalPolicy.DESTROY,
     })
 
+    const likesTable = new dynamodb.Table(this, 'LikesTable', {
+      partitionKey: { name: 'userId', type: dynamodb.AttributeType.STRING },
+      sortKey: { name: 'postId', type: dynamodb.AttributeType.STRING },
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
+    })
+
     // Lambda共通設定
     const lambdaProps = {
       runtime: lambda.Runtime.NODEJS_22_X,
       code: lambda.Code.fromAsset(path.join(__dirname, '../../backend/dist')),
       environment: {
         TABLE_NAME: table.tableName,
+        LIKES_TABLE_NAME: likesTable.tableName,
       },
     }
 
@@ -62,6 +69,11 @@ export class InfraStack extends cdk.Stack {
     table.grantWriteData(deletePostFn)
     table.grantReadWriteData(likePostFn)
     table.grantReadWriteData(unlikePostFn)
+
+    // Likesテーブルのアクセス権限
+    likesTable.grantReadData(listPostsFn)
+    likesTable.grantReadWriteData(likePostFn)
+    likesTable.grantReadWriteData(unlikePostFn)
 
     // Cognito
     const userPool = new cognito.UserPool(this, 'UserPool', {

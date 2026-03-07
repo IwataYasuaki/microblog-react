@@ -92,6 +92,7 @@ components:
         - authorName
         - createdAt
         - likeCount
+        - likedByMe
       properties:
         id:
           type: string
@@ -104,7 +105,8 @@ components:
           format: date-time
         likeCount:
           type: integer
-
+        likedByMe:
+          type: boolean
     CreatePostInput:
       type: object
       required:

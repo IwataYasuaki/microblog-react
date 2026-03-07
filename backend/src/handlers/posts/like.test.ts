@@ -1,23 +1,19 @@
-import { UpdateCommand } from '@aws-sdk/lib-dynamodb'
+import { TransactWriteCommand } from '@aws-sdk/lib-dynamodb'
 import { handler } from './like'
 import { ddbMock } from '../../test/setup'
 
 describe('likePost handler', () => {
   it('いいねして200を返す', async () => {
-    ddbMock.on(UpdateCommand).resolves({
-      Attributes: {
-        id: '1',
-        content: 'テスト投稿',
-        authorName: 'テストユーザー',
-        createdAt: '2024-01-01T00:00:00Z',
-        likeCount: 1,
+    ddbMock.on(TransactWriteCommand).resolves({})
+
+    const response = await handler({
+      pathParameters: { postId: '1' },
+      requestContext: {
+        authorizer: { claims: { 'cognito:username': 'user1' } },
       },
     })
 
-    const response = await handler({ pathParameters: { postId: '1' } })
-
     expect(response.statusCode).toBe(200)
-    expect(JSON.parse(response.body).likeCount).toBe(1)
   })
 
   it('postIdがない場合は400を返す', async () => {
@@ -26,25 +22,27 @@ describe('likePost handler', () => {
   })
 
   it('エラー時は500を返す', async () => {
-    ddbMock.on(UpdateCommand).rejects(new Error('DynamoDB error'))
+    ddbMock.on(TransactWriteCommand).rejects(new Error('DynamoDB error'))
 
-    const response = await handler({ pathParameters: { postId: '1' } })
+    const response = await handler({
+      pathParameters: { postId: '1' },
+      requestContext: {
+        authorizer: { claims: { 'cognito:username': 'user1' } },
+      },
+    })
 
     expect(response.statusCode).toBe(500)
   })
 
   it('レスポンスにCORSヘッダーが含まれる', async () => {
-    ddbMock.on(UpdateCommand).resolves({
-      Attributes: {
-        id: '1',
-        content: 'テスト投稿',
-        authorName: 'テストユーザー',
-        createdAt: '2024-01-01T00:00:00Z',
-        likeCount: 1,
+    ddbMock.on(TransactWriteCommand).resolves({})
+
+    const response = await handler({
+      pathParameters: { postId: '1' },
+      requestContext: {
+        authorizer: { claims: { 'cognito:username': 'user1' } },
       },
     })
-
-    const response = await handler({ pathParameters: { postId: '1' } })
 
     expect(response.headers['Access-Control-Allow-Origin']).toBe('*')
   })

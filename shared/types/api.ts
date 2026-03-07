@@ -68,6 +68,7 @@ export interface components {
             /** Format: date-time */
             createdAt: string;
             likeCount: number;
+            likedByMe: boolean;
         };
         CreatePostInput: {
             content: string;

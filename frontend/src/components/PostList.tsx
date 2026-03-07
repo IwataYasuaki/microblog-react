@@ -3,12 +3,11 @@ import { Post as PostComponent } from './Post'
 
 type Props = {
   posts: Post[]
-  likedPostIds: string[]
   onLike: (postId: string) => void
   onUnlike: (postId: string) => void
 }
 
-export function PostList({ posts, likedPostIds, onLike, onUnlike }: Props) {
+export function PostList({ posts, onLike, onUnlike }: Props) {
   if (posts.length === 0) {
     return <p>投稿がありません</p>
   }
@@ -19,7 +18,7 @@ export function PostList({ posts, likedPostIds, onLike, onUnlike }: Props) {
         <li key={post.id}>
           <PostComponent
             post={post}
-            liked={likedPostIds.includes(post.id)}
+            liked={post.likedByMe}
             onLike={() => onLike(post.id)}
             onUnlike={() => onUnlike(post.id)}
           />
