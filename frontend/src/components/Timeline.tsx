@@ -4,7 +4,11 @@ import { PostForm } from './PostForm'
 import { fetchPosts, createPost, likePost, unlikePost } from '../api/posts'
 import type { Post } from '@microblog/shared'
 
-export function Timeline() {
+type Props = {
+  currentUsername?: string
+}
+
+export function Timeline({ currentUsername = '' }: Props) {
   const [posts, setPosts] = useState<Post[]>([])
   const [likedPostIds, setLikedPostIds] = useState<string[]>([])
 
@@ -17,7 +21,7 @@ export function Timeline() {
     const tempPost = {
       id: crypto.randomUUID(),
       content,
-      authorName: '',
+      authorName: currentUsername,
       createdAt: new Date().toISOString(),
       likeCount: 0,
     }

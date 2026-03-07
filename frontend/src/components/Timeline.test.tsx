@@ -162,10 +162,11 @@ describe('Timeline', () => {
   it('投稿するとAPIレスポンスを待たずに即座にタイムラインに表示される', async () => {
     mockCreatePost.mockReturnValue(new Promise(() => {}))
 
-    render(<Timeline />)
+    render(<Timeline currentUsername="yamada_taro" />)
     await userEvent.type(screen.getByRole('textbox'), '新しい投稿')
     await userEvent.click(screen.getByRole('button', { name: '投稿' }))
 
     expect(screen.getByText('新しい投稿')).toBeInTheDocument()
+    expect(screen.getByText('yamada_taro')).toBeInTheDocument()
   })
 })

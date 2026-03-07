@@ -6,11 +6,11 @@ import './lib/amplify'
 export default function App() {
   return (
     <Authenticator signUpAttributes={['email']}>
-      {({ signOut }) => (
+      {({ signOut, user }) => (
         <div>
           <h1>microblog</h1>
           <button onClick={signOut}>ログアウト</button>
-          <Timeline />
+          <Timeline currentUsername={user?.username} />
         </div>
       )}
     </Authenticator>
