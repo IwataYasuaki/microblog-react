@@ -9,6 +9,7 @@ const mockPost: PostType = {
   authorName: 'テストユーザー',
   createdAt: '2024-01-01T00:00:00Z',
   likeCount: 3,
+  likedByMe: false,
 }
 
 describe('Post', () => {

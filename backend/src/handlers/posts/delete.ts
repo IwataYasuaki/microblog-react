@@ -9,7 +9,10 @@ export const handler = async (event: {
   }
 
   const { postId } = event.pathParameters
-  const repository = new PostRepository(process.env.TABLE_NAME ?? 'posts')
+  const repository = new PostRepository(
+    process.env.TABLE_NAME ?? 'posts',
+    process.env.LIKES_TABLE_NAME ?? 'likes'
+  )
 
   try {
     await repository.deletePost(postId)

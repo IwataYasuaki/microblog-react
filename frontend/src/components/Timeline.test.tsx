@@ -24,8 +24,8 @@ const mockPost = (overrides?: Partial<Post>): Post => ({
 beforeEach(() => {
   mockFetchPosts.mockResolvedValue([])
   mockCreatePost.mockResolvedValue(mockPost())
-  mockLikePost.mockResolvedValue(mockPost({ likeCount: 1, likedByMe: true }))
-  mockUnlikePost.mockResolvedValue(mockPost())
+  mockLikePost.mockResolvedValue(undefined)
+  mockUnlikePost.mockResolvedValue(undefined)
 })
 
 describe('Timeline', () => {

@@ -18,7 +18,10 @@ export const handler = async (event: {
   const { content } = JSON.parse(event.body)
   const authorName =
     event.requestContext?.authorizer?.claims?.['cognito:username'] ?? '名無し'
-  const repository = new PostRepository(process.env.TABLE_NAME ?? 'posts')
+  const repository = new PostRepository(
+    process.env.TABLE_NAME ?? 'posts',
+    process.env.LIKES_TABLE_NAME ?? 'likes'
+  )
 
   try {
     const post = await repository.createPost({ content, authorName })
