@@ -11,6 +11,13 @@ vi.mock('@aws-amplify/ui-react', () => ({
 
 vi.mock('./lib/amplify', () => ({}))
 
+vi.mock('./api/posts', () => ({
+  fetchPosts: vi.fn().mockResolvedValue([]),
+  createPost: vi.fn(),
+  likePost: vi.fn(),
+  unlikePost: vi.fn(),
+}))
+
 describe('App', () => {
   it('タイトルが表示される', () => {
     render(<App />)
