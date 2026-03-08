@@ -133,7 +133,10 @@ export class InfraStack extends cdk.Stack {
     )
 
     const posts = api.root.addResource('posts')
-    posts.addMethod('GET', new apigateway.LambdaIntegration(listPostsFn))
+    posts.addMethod('GET', new apigateway.LambdaIntegration(listPostsFn), {
+      authorizer,
+      authorizationType: apigateway.AuthorizationType.COGNITO,
+    })
     posts.addMethod('POST', new apigateway.LambdaIntegration(createPostFn), {
       authorizer,
       authorizationType: apigateway.AuthorizationType.COGNITO,

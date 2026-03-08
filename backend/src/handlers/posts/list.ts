@@ -20,7 +20,10 @@ export const handler = async (
   try {
     const posts = await repository.listPosts()
     const postIds = posts.map((post) => post.id)
-    const likedPostIds = await repository.getLikedPostIds(userId, postIds)
+
+    const likedPostIds = userId
+      ? await repository.getLikedPostIds(userId, postIds)
+      : []
 
     const postsWithLikedByMe = posts.map((post) => ({
       ...post,
@@ -29,6 +32,7 @@ export const handler = async (
 
     return createResponse(200, postsWithLikedByMe)
   } catch (error) {
+    console.error('Error:', error)
     return createResponse(500, { message: 'Internal Server Error' })
   }
 }

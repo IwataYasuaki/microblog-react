@@ -12,7 +12,9 @@ async function authHeaders() {
 }
 
 export async function fetchPosts(): Promise<Post[]> {
-  const response = await fetch(`${BASE_URL}/posts`)
+  const response = await fetch(`${BASE_URL}/posts`, {
+    headers: await authHeaders(),
+  })
   if (!response.ok) {
     throw new Error('投稿一覧の取得に失敗しました')
   }

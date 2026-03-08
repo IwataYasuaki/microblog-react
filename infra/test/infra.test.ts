@@ -71,6 +71,13 @@ describe('InfraStack', () => {
     })
   })
 
+  it('GET /postsにCognitoオーソライザーが設定される', () => {
+    template.hasResourceProperties('AWS::ApiGateway::Method', {
+      HttpMethod: 'GET',
+      AuthorizationType: 'COGNITO_USER_POOLS',
+    })
+  })
+
   it('Likesテーブルが作成される', () => {
     template.hasResourceProperties('AWS::DynamoDB::Table', {
       KeySchema: [

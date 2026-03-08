@@ -125,4 +125,22 @@ describe('posts API', () => {
       })
     )
   })
+
+  it('投稿一覧取得にAuthorizationヘッダーが含まれる', async () => {
+    mockFetch.mockResolvedValue({
+      ok: true,
+      json: async () => [],
+    })
+
+    await fetchPosts()
+
+    expect(mockFetch).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.objectContaining({
+        headers: expect.objectContaining({
+          Authorization: 'Bearer test-token',
+        }),
+      })
+    )
+  })
 })

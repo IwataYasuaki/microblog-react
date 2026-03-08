@@ -80,4 +80,24 @@ describe('listPosts handler', () => {
 
     expect(response.headers['Access-Control-Allow-Origin']).toBe('*')
   })
+
+  it('未ログイン時はlikedByMeがすべてfalseになる', async () => {
+    ddbMock.on(ScanCommand).resolves({
+      Items: [
+        {
+          id: '1',
+          content: 'テスト投稿',
+          authorName: 'テストユーザー',
+          createdAt: '2024-01-01T00:00:00Z',
+          likeCount: 0,
+        },
+      ],
+    })
+
+    const response = await handler({})
+
+    expect(response.statusCode).toBe(200)
+    const posts = JSON.parse(response.body)
+    expect(posts[0].likedByMe).toBe(false)
+  })
 })
