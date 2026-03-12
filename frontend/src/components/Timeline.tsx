@@ -3,6 +3,7 @@ import { PostList } from './PostList'
 import { PostForm } from './PostForm'
 import { fetchPosts, createPost, likePost, unlikePost } from '../api/posts'
 import type { Post } from '@microblog/shared'
+import toast from 'react-hot-toast'
 
 type Props = {
   currentUsername?: string
@@ -12,7 +13,9 @@ export function Timeline({ currentUsername = '' }: Props) {
   const [posts, setPosts] = useState<Post[]>([])
 
   useEffect(() => {
-    fetchPosts().then(setPosts)
+    fetchPosts()
+      .then(setPosts)
+      .catch((error: Error) => toast.error(error.message))
   }, [])
 
   const handleSubmit = async (content: string) => {
@@ -31,8 +34,9 @@ export function Timeline({ currentUsername = '' }: Props) {
       setPosts((prev) =>
         prev.map((post) => (post.id === tempPost.id ? newPost : post))
       )
-    } catch {
+    } catch (error) {
       setPosts((prev) => prev.filter((post) => post.id !== tempPost.id))
+      toast.error((error as Error).message)
     }
   }
 
@@ -46,7 +50,7 @@ export function Timeline({ currentUsername = '' }: Props) {
     )
     try {
       await likePost(postId)
-    } catch {
+    } catch (error) {
       setPosts((prev) =>
         prev.map((post) =>
           post.id === postId
@@ -54,6 +58,7 @@ export function Timeline({ currentUsername = '' }: Props) {
             : post
         )
       )
+      toast.error((error as Error).message)
     }
   }
 
@@ -67,7 +72,7 @@ export function Timeline({ currentUsername = '' }: Props) {
     )
     try {
       await unlikePost(postId)
-    } catch {
+    } catch (error) {
       setPosts((prev) =>
         prev.map((post) =>
           post.id === postId
@@ -75,6 +80,7 @@ export function Timeline({ currentUsername = '' }: Props) {
             : post
         )
       )
+      toast.error((error as Error).message)
     }
   }
 

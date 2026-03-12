@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { Timeline } from './Timeline'
 import * as postsApi from '../api/posts'
 import type { Post } from '@microblog/shared'
+import { Toaster } from 'react-hot-toast'
 
 vi.mock('../api/posts')
 
@@ -116,5 +117,74 @@ describe('Timeline', () => {
 
     expect(screen.getByText('新しい投稿')).toBeInTheDocument()
     expect(screen.getByText('yamada_taro')).toBeInTheDocument()
+  })
+
+  it('投稿に失敗するとエラートーストが表示される', async () => {
+    mockCreatePost.mockRejectedValue(new Error('投稿の作成に失敗しました'))
+
+    render(
+      <>
+        <Toaster />
+        <Timeline />
+      </>
+    )
+    await userEvent.type(screen.getByRole('textbox'), '新しい投稿')
+    await userEvent.click(screen.getByRole('button', { name: '投稿' }))
+
+    expect(
+      await screen.findByText('投稿の作成に失敗しました')
+    ).toBeInTheDocument()
+  })
+
+  it('いいねに失敗するとエラートーストが表示される', async () => {
+    mockFetchPosts.mockResolvedValue([mockPost()])
+    mockLikePost.mockRejectedValue(new Error('いいねに失敗しました'))
+
+    render(
+      <>
+        <Toaster />
+        <Timeline />
+      </>
+    )
+    await screen.findByText('テスト投稿')
+    await userEvent.click(screen.getByRole('button', { name: 'いいね' }))
+
+    expect(await screen.findByText('いいねに失敗しました')).toBeInTheDocument()
+  })
+
+  it('いいね取り消しに失敗するとエラートーストが表示される', async () => {
+    mockFetchPosts.mockResolvedValue([mockPost()])
+    mockUnlikePost.mockRejectedValue(
+      new Error('いいねの取り消しに失敗しました')
+    )
+
+    render(
+      <>
+        <Toaster />
+        <Timeline />
+      </>
+    )
+    await screen.findByText('テスト投稿')
+    await userEvent.click(screen.getByRole('button', { name: 'いいね' }))
+    await userEvent.click(screen.getByRole('button', { name: 'いいね済み' }))
+
+    expect(
+      await screen.findByText('いいねの取り消しに失敗しました')
+    ).toBeInTheDocument()
+  })
+
+  it('投稿一覧の取得に失敗するとエラートーストが表示される', async () => {
+    mockFetchPosts.mockRejectedValue(new Error('投稿一覧の取得に失敗しました'))
+
+    render(
+      <>
+        <Toaster />
+        <Timeline />
+      </>
+    )
+
+    expect(
+      await screen.findByText('投稿一覧の取得に失敗しました')
+    ).toBeInTheDocument()
   })
 })
