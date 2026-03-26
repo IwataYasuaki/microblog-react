@@ -1,0 +1,38 @@
+.card {
+  background-color: #ffffff;
+  border: 1px solid #e1e8ed;
+  border-radius: 12px;
+  padding: 16px;
+  margin-top: 12px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.authorName {
+  font-weight: bold;
+  font-size: 15px;
+  color: #14171a;
+}
+
+.date {
+  font-size: 13px;
+  color: #657786;
+}
+
+.content {
+  font-size: 15px;
+  line-height: 1.5;
+  color: #14171a;
+  margin-bottom: 12px;
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}

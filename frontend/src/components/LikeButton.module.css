@@ -1,0 +1,43 @@
+.container {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.button {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: none;
+  color: #657786;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 20px;
+  transition:
+    color 0.2s,
+    background-color 0.2s;
+}
+
+.button:hover {
+  color: #e0245e;
+  background-color: rgba(224, 36, 94, 0.1);
+}
+
+.buttonLiked {
+  color: #e0245e;
+}
+
+.buttonLiked:hover {
+  background-color: rgba(224, 36, 94, 0.1);
+}
+
+.count {
+  font-size: 14px;
+  color: #657786;
+}
+
+.countLiked {
+  color: #e0245e;
+}

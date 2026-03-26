@@ -1,5 +1,6 @@
 import type { Post } from '@microblog/shared'
 import { Post as PostComponent } from './Post'
+import styles from './PostList.module.css'
 
 type Props = {
   posts: Post[]
@@ -9,11 +10,11 @@ type Props = {
 
 export function PostList({ posts, onLike, onUnlike }: Props) {
   if (posts.length === 0) {
-    return <p>投稿がありません</p>
+    return <p className={styles.empty}>投稿がありません</p>
   }
 
   return (
-    <ul>
+    <ul className={styles.list}>
       {posts.map((post) => (
         <li key={post.id}>
           <PostComponent

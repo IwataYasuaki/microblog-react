@@ -1,4 +1,9 @@
 {
   "editor.formatOnSave": true,
-  "editor.defaultFormatter": "esbenp.prettier-vscode"
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "vitest.projects": [
+    "frontend/vite.config.ts",
+    "backend/vite.config.ts",
+    "infra/vite.config.ts"
+  ]
 }
